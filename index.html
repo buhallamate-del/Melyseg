@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mélység</title>
+<meta name="description" content="Fúrókapszulával a Föld középpontja felé: kéreg, köpeny, mag – és ami a közepén vár.">
+<style>
+:root{--bg:#0b0907;--panel:#17120e;--line:#3a2c20;--ink:#f3e7d6;--dim:#a8957f;--lava:#ff7a2a;--gold:#f2c14e;--cool:#59c3ff;--ok:#7bd88f;--bad:#ff5a4f;
+  --f:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--m:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:15px/1.45 var(--f);-webkit-tap-highlight-color:transparent}
+body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);overflow:hidden}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+[hidden]{display:none!important}
+.hud{position:fixed;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 8px) 12px 8px;display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;pointer-events:none;font:600 12px var(--m);text-shadow:0 1px 3px #000}
+.hud .big{font:800 26px var(--m);letter-spacing:-.5px}
+.hud .col{display:flex;flex-direction:column;gap:2px}
+.bars{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 12px);display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;pointer-events:none;font:600 11px var(--m)}
+.bar{height:7px;border-radius:4px;background:#ffffff1c;overflow:hidden;margin-top:3px}.bar i{display:block;height:100%;border-radius:4px}
+.fel{position:fixed;right:12px;bottom:calc(env(safe-area-inset-bottom) + 58px);pointer-events:auto;background:#0009;color:var(--ink);border:1px solid #fff4;border-radius:10px;padding:8px 12px;font:700 13px var(--f)}
+.uz{position:fixed;left:50%;top:30%;transform:translateX(-50%);max-width:min(92vw,520px);text-align:center;font:600 14px/1.4 var(--f);background:#000b;border:1px solid #fff2;border-radius:12px;padding:10px 14px;pointer-events:none;transition:opacity .4s}
+.lap{position:fixed;inset:0;overflow-y:auto;background:radial-gradient(120% 70% at 50% 0%,#2a1a10 0%,var(--bg) 60%);padding:calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 30px)}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{font:900 44px/1 var(--f);letter-spacing:-1.5px;margin:6px 0 0;background:linear-gradient(180deg,#ffd9a8,#ff7a2a 60%,#a3260f);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{font:800 19px var(--f);margin:0 0 6px}h3{font:700 15px var(--f);margin:0}
+p{margin:6px 0}.dim{color:var(--dim)}.kicsi{font-size:12.5px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.chip{font:700 12px var(--m);padding:3px 8px;border-radius:9px;border:1px solid var(--line);color:var(--gold);white-space:nowrap}
+button{font:inherit;cursor:pointer}
+.go{width:100%;padding:16px;border:0;border-radius:14px;font:900 20px var(--f);letter-spacing:.5px;color:#1b0d03;background:linear-gradient(180deg,#ffb15c,#ff6a1f);box-shadow:0 6px 24px #ff6a1f55}
+.up{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:10px 0;border-top:1px solid var(--line)}.up:first-of-type{border-top:0}
+.up button{grid-row:span 2;align-self:center;padding:9px 12px;border-radius:10px;border:1px solid var(--lava);background:#ff7a2a18;color:var(--ink);font-weight:800;min-width:96px}
+.up button:disabled{opacity:.4;border-color:var(--line)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}.tabs button{flex:1;padding:8px 6px;border-radius:10px;border:1px solid var(--line);background:none;color:var(--dim);font-weight:700;font-size:13px}
+.tabs button[aria-pressed=true]{color:var(--ink);border-color:var(--lava);background:#ff7a2a14}
+.log{display:flex;flex-direction:column;gap:8px}.log div{border-left:2px solid var(--lava);padding-left:10px}
+.vtab{width:100%;border-collapse:collapse;font-size:13px}.vtab td,.vtab th{padding:5px 3px;border-bottom:1px solid var(--line);text-align:left}.vtab th{color:var(--dim)}.vtab tr.en td{color:var(--gold);font-weight:700}.vtab td.sz{text-align:right}
+.fent{font-size:11px;padding:1px 6px;border-radius:8px;background:#7bd88f22;color:var(--ok);margin-left:4px}
+input{font:inherit;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:#0d0a08;color:var(--ink)}
+a.kapu{display:inline-block;margin:6px 8px 0 0;padding:8px 12px;border-radius:10px;border:1px solid #9b7bff;color:#cbb9ff;text-decoration:none;font-weight:700}
+#fold{width:100%;height:auto;display:block;margin:4px auto}
+.osszeg{font:600 14px var(--m)}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hud" id="hud" hidden>
+  <div class="col"><span class="dim">MÉLYSÉG</span><span class="big" id="hD">0 km</span><span id="hR">Felső kéreg</span></div>
+  <div class="col" style="text-align:right"><span><span class="dim">KÜLSŐ</span> <b id="hT">15 °C</b></span><span><span class="dim">NYOMÁS</span> <b id="hP">0 GPa</b></span><span><span class="dim">g</span> <b id="hG">9,8</b> m/s²</span><span><span class="dim">MINTA</span> <b id="hK">0</b> kr</span></div>
+</div>
+<div class="bars" id="bars" hidden>
+  <div>ENERGIA <span id="bEt"></span><div class="bar"><i id="bE" style="background:var(--cool)"></i></div></div>
+  <div>BELSŐ HŐ <span id="bHt"></span><div class="bar"><i id="bH" style="background:var(--lava)"></i></div></div>
+</div>
+<button class="fel" id="fel" hidden>⤒ Felszínre</button>
+<div class="uz" id="uz" style="opacity:0"></div>
+<div class="lap" id="lap"><div class="wrap" id="wrap"></div></div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),lerp=(a,b,t)=>a+(b-a)*t;
+const hu=(n,d=0)=>n.toLocaleString('hu-HU',{minimumFractionDigits:d,maximumFractionDigits:d});
+const km=d=>d<10?hu(d,2)+' km':d<100?hu(d,1)+' km':hu(Math.round(d))+' km';
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ---- A Föld belseje (PREM-modell közelítése): mélység km → hőmérséklet, nyomás, nehézségi gyorsulás ----
+const R0=6371;
+const TPROF=[[0,15],[12,180],[35,600],[100,1300],[410,1450],[660,1600],[2700,2500],[2890,3800],[5150,5000],[6371,5400]];
+const PPROF=[[0,0],[12,.33],[35,1],[410,13.5],[660,23.8],[2890,136],[5150,330],[6371,364]];
+const GPROF=[[0,9.82],[660,10.0],[2000,9.9],[2890,10.68],[5150,4.4],[6371,0]];
+function prof(P,d){for(let i=1;i<P.length;i++)if(d<=P[i][0]){const[a,x]=P[i-1],[b,y]=P[i];return lerp(x,y,(d-a)/(b-a))}return P[P.length-1][1]}
+const T=d=>prof(TPROF,d),P=d=>prof(PPROF,d),G=d=>prof(GPROF,d);
+// rétegek: [kezdet km, név, kőzetszín, szemcseszín, keménység-szorzó (nagyobb = gyorsabb), ásványok]
+const RETEG=[
+  [0,'Felső kéreg','#5b4636','#8a6d52',1,[['kvarc',1],['földpát',1.2],['pirit',2]]],
+  [15,'Alsó kéreg','#3f3a37','#6b625a',.9,[['gabbró',1.5],['magnetit',2.5]]],
+  [35,'Felső köpeny','#3d4a2c','#7f9a4a',1.4,[['olivin',3],['piroxén',3.5],['gyémánt',12]]],
+  [410,'Átmeneti zóna','#2c4a46','#5fa39a',1.5,[['wadsleyit',6],['ringwoodit',9]]],
+  [660,'Alsó köpeny','#4a2f3d','#a35f80',1.7,[['bridgmanit',10],['ferroperiklász',12]]],
+  [2700,'D″ réteg','#5a2a1c','#c4552e',1.6,[['posztperovszkit',22]]],
+  [2890,'Külső mag','#7a3a0c','#ffb347',4,[['vas–nikkel',30]]],
+  [5150,'Belső mag','#a8a29a','#fff4d6',2.2,[['vaskristály',60]]]];
+const reteg=d=>{let r=RETEG[0];for(const x of RETEG)if(d>=x[0])r=x;return r};
+// mérföldkövek: [mélység, napló-kulcs, cím, tény]
+const KOVEK=[
+  [1,'','Az első kilométer','A kéreg felső kilométerein a hőmérséklet kilométerenként nagyjából 25 °C-kal nő (geotermikus gradiens). A bányák legmélyebb tárnái 4 km körül járnak, ott már 60 °C fölötti a kőzet.'],
+  [12.262,'me:kola','Túl a Kola-fúráson','Az ember legmélyebb fúrása a Kola-félszigeten 1989-ben 12 262 méternél állt meg: 180 °C-nál a kőzet már képlékenyen viselkedett, a fúrófej nem bírta. Te most mélyebben jársz, mint bárki valaha.'],
+  [35,'me:moho','A Moho-határ','Andrija Mohorovičić horvát geofizikus 1909-ben vette észre, hogy a földrengéshullámok ezen a mélységen hirtelen felgyorsulnak: itt ér véget a kéreg, és kezdődik a köpeny. Az óceánok alatt ez csak 5–10 km.'],
+  [410,'me:kopeny','Olivin → wadsleyit','A nyomás itt akkora (13–14 GPa), hogy az olivin kristályrácsa összeroppan, és sűrűbb ásvánnyá, wadsleyitté alakul. A szeizmikus hullámok erről a „lépcsőről” verődnek vissza.'],
+  [520,'','Víz a kőben','A ringwoodit vizet tud megkötni a kristályrácsában. 2014-ben egy brazil gyémánt zárványában találtak víztartalmú ringwoodit-szemcsét: az átmeneti zóna akár több óceánnyi vizet is őrizhet.'],
+  [660,'','A Föld leggyakoribb ásványa','Az alsó köpenyt főleg bridgmanit alkotja. Ez a Föld leggyakoribb ásványa, mégis csak 2014-ben kapott nevet, mert a felszínen nem marad stabil, csak meteoritokban találták meg.'],
+  [2890,'me:mag','A Gutenberg-határ','Itt ér véget a szilárd köpeny, és kezdődik a folyékony vas–nikkel külső mag. Benne az áramlások hajtják a geodinamót: ez kelti a Föld mágneses terét, ami megvéd a napszéltől. A nehézségi gyorsulás itt a legnagyobb, kb. 10,7 m/s².'],
+  [5150,'me:belso','A Lehmann-határ','Inge Lehmann dán szeizmológus 1936-ban mutatta ki, hogy a mag közepe szilárd. Bár 5000 °C fölött van – nagyjából a Nap felszínének hőmérséklete –, a 330 GPa nyomás szilárd vaskristállyá préseli.'],
+  [6371,'me:kozep','A Föld középpontja','Itt a nehézségi erő nulla: minden irányban ugyanannyi tömeg húz. Nincs lent és fent. És a közepén valami, ami nem lehetne itt: fény, ami kifelé áramlik.']];
+
+// ---- mentés ----
+const KEY='melyseg:v1';
+const UPG=[
+  ['fur','Fúrófej','gyorsabban halad (km/s)',l=>.12*Math.pow(1.75,l),v=>hu(v,v<1?2:1)+' km/s',30],
+  ['hut','Hűtés','ekkora külső hőt bír (°C)',l=>80+120*Math.pow(1.45,l),v=>hu(Math.round(v))+' °C',40],
+  ['hej','Nyomásálló héj','eddig a nyomásig mehet (GPa)',l=>.4*Math.pow(1.9,l),v=>hu(v,v<10?1:0)+' GPa',40],
+  ['akk','Akkumulátor','ennyi ideig fúr (másodperc)',l=>45+12*l,v=>Math.round(v)+' mp',25],
+  ['mag','Mágnes','messzebbről gyűjti a mintákat',l=>.05+.022*l,v=>hu(v*100)+' %',20]];
+const cost=(u,l)=>Math.round(u[5]*Math.pow(1.85,l));
+function fresh(){return{kr:0,up:{fur:0,hut:0,hej:0,akk:0,mag:0},best:0,dives:0,total:0,kov:{},nev:''}}
+let S=fresh();
+try{const o=JSON.parse(localStorage.getItem(KEY));if(o&&o.up)S={...fresh(),...o,up:{...fresh().up,...o.up},kov:o.kov||{}}}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const val=id=>UPG.find(u=>u[0]===id)[3](S.up[id]);
+
+// ---- közös napló a többi játékkal (Eseményhorizont, Kísérleti Lőtér, Raktár 3D, Égtorony, Mézország, Jeltörő…) ----
+const UNIV_KEY='univerzum-naplo';
+const univ={get(){try{return JSON.parse(localStorage.getItem(UNIV_KEY))||{}}catch(_){return {}}},has(k){return !!this.get()[k]},
+  set(k){const n=this.get();if(n[k])return false;n[k]=Date.now();try{localStorage.setItem(UNIV_KEY,JSON.stringify(n))}catch(_){}return true}};
+univ.set('me:jart');
+function univBeagyazva(){try{return window.parent!==window&&window.parent.location.origin===location.origin}catch(_){return false}}
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href*="Esemenyhorizont"]');if(a&&univBeagyazva()){e.preventDefault();window.parent.postMessage({type:'univ-vissza',from:'melyseg'},location.origin)}});
+const VILAGOK=[
+  ['eh:jart','Eseményhorizont','../Esemenyhorizont/?from=melyseg','Egy hajó egy fekete lyuk körül. Ami ott elnyelődik, annak valahol ki kell jönnie.'],
+  ['lo:jart','Kísérleti Lőtér','../Kiserleti_robbantas/','Rakéták 1957-ből: ők felfelé akarnak kijutni, te lefelé.'],
+  ['r3:jart','Raktár 3D','../raktar-3d/','Egy raktár, ahol a legmélyebb pont a pohármosó lefolyója.'],
+  ['eg:jart','Égtorony','../Egtorony/','Egy torony a felhők fölé. A Mélység a tükörképe: ott felfelé, itt lefelé nő az ellenállás.'],
+  ['mo:jart','Mézország','../Mezorszag/','Kaptárak egy akácos szélén. A gyökerek a kéreg felső métereiig érnek – onnan te megyed tovább.'],
+  ['jt:jart','Jeltörő','../Jel-toro/','Egy lehallgatóállomás, ahol furcsa adásokat fejtenek meg. Az egyik a Föld belsejéből jön.']];
+function ajandekok(){const n=univ.get(),A=[['eh:horizont',400,'Egy eseményhorizont mögül hő szivárog vissza: +400 kr a kutatásra.'],['eg:sziv',300,'Egy torony Szíve megrepedt, a földrengés új repedéseket nyitott: +300 kr.'],
+  ['mo:csillag',200,'Csillagméhek szálltak el a fúrótorony fölött: a méhészek támogatják az expedíciót, +200 kr.'],['lo:moon',300,'Valaki a Holdra jutott; a Föld közepe még mindig érintetlen. Az Akadémia +300 kr-t ad.'],
+  ['r3:feketelyuk',150,'Egy raktár pohármosójában apró fekete lyuk nyílt. A szeizmográfok jelezték: +150 kr.'],['eh:egg:melyseg',300,'Egy fekete lyuk mögötti buborékban rátaláltak a fúrótornyodra: +300 kr.']];
+  let uz='';for(const[k,kr,sz]of A)if(n[k]&&univ.set('me:ajandek:'+k)){S.kr+=kr;uz+='<p class="kicsi">'+sz+'</p>'}if(uz)save();return uz}
+
+// ---- heti verseny (közös modul, mint az Égtoronyban és a Mézországban) ----
+// ---- Multiverzum-bajnokság: heti rangsor más játékosokkal ----
+// Egy nyilvános MQTT üzenetközvetítőn (HiveMQ, mint a Raktár 3D-ben és a Lőtér Űrversenyében) megy át a játékosok
+// neve és heti eredménye; saját szerver nincs. Témák (VS_CS/...):
+//   <játék>/<hét>/<azonosító>  – megőrzött heti eredmény: {id, nev, v:{...}, ts}
+//   jelen/<játék>/<azonosító>  – megőrzött jelenlét (a kapcsolat megszakadásakor a szerver törli)
+//   <játék>/e                  – élő hírek: {id, nev, t}
+// Hétfőn új hét, új rangsor; az előző hét győztese (ha legalább ketten versenyeztek) egyszeri jutalmat kap.
+const VS_BROKER='wss://broker.hivemq.com:8884/mqtt',VS_CS='multiverzum-bajnoksag-r4w8';
+function vsHet(d=new Date()){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())),n=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-n);
+  const e=t.getUTCFullYear();return e+'-W'+String(Math.ceil(((t-Date.UTC(e,0,1))/864e5+1)/7)).padStart(2,'0')}
+function inditVerseny({jatek,ertek,rendez,jutalom,valtozott}){
+  const id=(()=>{let i;try{i=localStorage.getItem('multiverzum-id')}catch(e){}if(!i){i=Math.random().toString(36).slice(2,10);try{localStorage.setItem('multiverzum-id',i)}catch(e){}}return i})();
+  const V={be:false,het:vsHet(),lap:{},elozo:{},jelen:{},hirek:[],k:null,kuld:'',uz:'Kapcsolódás…',id};
+  V.elozoHet=vsHet(new Date(Date.now()-7*864e5));
+  V.nev=()=>{try{return localStorage.getItem('multiverzum-nev')||''}catch(e){return ''}};
+  V.nevBe=n=>{n=String(n||'').trim().slice(0,24);try{localStorage.setItem('multiverzum-nev',n)}catch(e){}V.kuld='';V.kozol();jelenKuld()};
+  const tiszta=o=>o&&typeof o.id==='string'&&o.v&&typeof o.v==='object'?{id:o.id,nev:String(o.nev||'?').slice(0,24),v:o.v,ts:+o.ts||0}:null;
+  V.rangsor=(L=V.lap,sajat=true)=>{const l={...L};if(sajat){const v=ertek();if(v)l[id]={id,nev:V.nev()||'Névtelen',v,ts:Date.now()}}
+    return Object.values(l).filter(Boolean).map(x=>({...x,en:x.id===id})).filter(x=>x.en||Object.values(x.v).some(v=>+v>0)).sort((a,b)=>rendez(a.v,b.v))};
+  const jt=()=>VS_CS+'/jelen/'+jatek+'/'+id;
+  function jelenKuld(){if(V.be)V.k.publish(jt(),JSON.stringify({nev:V.nev()||'Névtelen'}),{qos:0,retain:true})}
+  V.kozol=()=>{if(!V.be||!V.nev())return;const v=ertek();if(!v)return;const s=JSON.stringify(v);if(s===V.kuld)return;V.kuld=s;
+    V.k.publish(VS_CS+'/'+jatek+'/'+V.het+'/'+id,JSON.stringify({id,nev:V.nev(),v,ts:Date.now()}),{qos:0,retain:true})};
+  V.hir=t=>{if(V.be&&V.nev())V.k.publish(VS_CS+'/'+jatek+'/e',JSON.stringify({id,nev:V.nev(),t:String(t).slice(0,140)}),{qos:0})};
+  V.fent=()=>Object.keys(V.jelen).length;
+  // az előző hét győztese: egyszer, ha mi voltunk az elsők (és nem egyedül)
+  let bajnokNezve=false;
+  function bajnokCsekk(){if(bajnokNezve)return;const R=V.rangsor(V.elozo,false);if(R.length<2||R[0].id!==id)return;bajnokNezve=true;
+    let n={};try{n=JSON.parse(localStorage.getItem('univerzum-naplo'))||{}}catch(e){}const k=jatek+':bajnok:'+V.elozoHet;if(n[k])return;
+    n[k]=Date.now();try{localStorage.setItem('univerzum-naplo',JSON.stringify(n))}catch(e){}jutalom(V.elozoHet,R.length)}
+  (async()=>{let mqtt;try{const mod=await import('./vendor/mqtt/mqtt.esm.js');mqtt=mod.default?.connect?mod.default:mod.default?.default??mod}catch(e){V.uz='A versenyhez nem sikerült betölteni a hálózati könyvtárat.';valtozott();return}
+    V.k=mqtt.connect(VS_BROKER,{clientId:jatek+'_'+id+'_'+Math.random().toString(36).slice(2,6),clean:true,keepalive:30,reconnectPeriod:5000,connectTimeout:10000,will:{topic:jt(),payload:'',qos:0,retain:true}});
+    V.k.on('connect',()=>{V.be=true;V.uz='';V.het=vsHet();V.k.subscribe(VS_CS+'/'+jatek+'/'+V.het+'/+');V.k.subscribe(VS_CS+'/'+jatek+'/'+V.elozoHet+'/+');
+      V.k.subscribe(VS_CS+'/jelen/'+jatek+'/+');V.k.subscribe(VS_CS+'/'+jatek+'/e');jelenKuld();V.kuld='';V.kozol();valtozott();setTimeout(bajnokCsekk,4000)});
+    V.k.on('close',()=>{if(V.be){V.be=false;V.uz='A kapcsolat megszakadt, újrapróbálom…';valtozott()}});
+    V.k.on('error',e=>console.warn('[verseny]',e?.message||e));
+    V.k.on('message',(tema,adat)=>{const r=tema.slice(VS_CS.length+1).split('/');let o=null;try{const s=adat.toString();o=s?JSON.parse(s):null}catch(e){return}
+      if(r[0]==='jelen'){if(r[2]===id)return;if(o)V.jelen[r[2]]=String(o.nev||'?').slice(0,24);else delete V.jelen[r[2]]}
+      else if(r[1]==='e'){if(!o||o.id===id)return;V.hirek.unshift({nev:String(o.nev||'?').slice(0,24),t:String(o.t||'').slice(0,140),ido:Date.now()});V.hirek.length=Math.min(V.hirek.length,6);valtozott(V.hirek[0]);return}
+      else if(r[1]===V.het||r[1]===V.elozoHet){if(r[2]===id&&r[1]===V.het)return;const L=r[1]===V.het?V.lap:V.elozo;const x=tiszta(o);if(x&&x.id===r[2])L[r[2]]=x;else delete L[r[2]]}
+      valtozott()})})();
+  return V}
+
+const VS_TAR='melyseg:verseny';
+let vsAllas=(()=>{try{return JSON.parse(localStorage.getItem(VS_TAR))||{}}catch(e){return {}}})();
+function vsHeti(){const h=vsHet();if(vsAllas.het!==h){vsAllas={het:h,d:0,n:0};try{localStorage.setItem(VS_TAR,JSON.stringify(vsAllas))}catch(e){}}return vsAllas.d?{d:Math.round(vsAllas.d*1000)/1000,n:vsAllas.n}:null}
+const VS=inditVerseny({jatek:'me',ertek:vsHeti,rendez:(a,b)=>(+b.d||0)-(+a.d||0),
+  jutalom:(het,db)=>{S.kr+=600;save();uzenet('🏆 A múlt heti mélységverseny győztese te lettél ('+db+' fúró közül): +600 kr!',6);render()},
+  valtozott:h=>{if(h&&h.t&&mod==='merul')uzenet('📡 '+h.nev+' '+h.t,3);if(mod==='bazis'&&lapFul==='verseny'&&!(document.activeElement&&document.activeElement.tagName==='INPUT'))render()}});
+window.melyseg={get S(){return S},VS,get M(){return M},val:k=>val(k),seb:()=>M&&sebesseg(),P,T}; // hibakereséshez
+
+// ---- hang (Web Audio): fúrózúgás, gyűjtés, csattanás ----
+let AC=null,zug=null,zugG=null;
+function hangInit(){if(AC)return;try{AC=new(window.AudioContext||window.webkitAudioContext)();const n=AC.createBufferSource(),b=AC.createBuffer(1,AC.sampleRate*2,AC.sampleRate),d=b.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;n.buffer=b;n.loop=true;const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=180;zugG=AC.createGain();zugG.gain.value=0;
+  const o=AC.createOscillator();o.type='sawtooth';o.frequency.value=48;const og=AC.createGain();og.gain.value=.12;o.connect(og).connect(zugG);n.connect(f).connect(zugG);zugG.connect(AC.destination);n.start();o.start();zug={f,o}}catch(e){AC=null}}
+function csip(fr=880,h=.12,tip='sine',v=.15){if(!AC)return;const o=AC.createOscillator(),g=AC.createGain();o.type=tip;o.frequency.value=fr;g.gain.setValueAtTime(v,AC.currentTime);g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+h);o.connect(g).connect(AC.destination);o.start();o.stop(AC.currentTime+h)}
+
+// ---- üzenetek ----
+let uzT=0;function uzenet(t,mp=3.5){const e=$('uz');e.innerHTML=t;e.style.opacity=1;uzT=mp}
+
+// ---- merülés ----
+const cv=$('c'),cx=cv.getContext('2d');let W=0,H=0,DPR=1;
+function meret(){DPR=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cx.setTransform(DPR,0,0,DPR,0,0)}
+addEventListener('resize',meret);meret();
+let mod='bazis',M=null,lapFul='fejl';
+const bal=new Set();
+addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='a')bal.add('L');if(e.key==='ArrowRight'||e.key==='d')bal.add('R')});
+addEventListener('keyup',e=>{if(e.key==='ArrowLeft'||e.key==='a')bal.delete('L');if(e.key==='ArrowRight'||e.key==='d')bal.delete('R')});
+let ujj=null;
+cv.addEventListener('pointerdown',e=>{ujj={x:e.clientX,id:e.pointerId};cv.setPointerCapture(e.pointerId)});
+cv.addEventListener('pointermove',e=>{if(ujj&&e.pointerId===ujj.id)ujj.x=e.clientX});
+const ujjVege=e=>{if(ujj&&e.pointerId===ujj.id)ujj=null};cv.addEventListener('pointerup',ujjVege);cv.addEventListener('pointercancel',ujjVege);
+
+function indul(){
+  hangInit();if(AC&&AC.state==='suspended')AC.resume();
+  M={d:0,x:.5,vx:0,E:val('akk'),E0:val('akk'),heat:0,kr:0,minta:{},t:0,obj:[],spawn:0,lassit:0,okVege:null,kovek:[],max:0,fin:0,reszecske:[],rezg:0,mag:val('mag')};
+  mod='merul';$('lap').hidden=true;['hud','bars','fel'].forEach(i=>$(i).hidden=false);
+  uzenet('Fúrás indul. Kormányozz balra-jobbra (←/→, vagy húzd az ujjad), gyűjtsd a mintákat, kerüld a kemény kőzetet és a gázzsebeket.',4.5);
+  S.dives++;save();
+}
+function vege(ok){if(!M||M.okVege)return;M.okVege=ok;M.fin=0;if(zugG)zugG.gain.setTargetAtTime(0,AC.currentTime,.2)}
+$('fel').addEventListener('click',()=>vege('fel'));
+
+function spawn(dt){
+  const r=reteg(M.d),sebe=sebesseg(),span=sebe*5;
+  M.spawn+=dt*(2.2+Math.min(2,M.d/800));
+  while(M.spawn>=1){M.spawn--;
+    const melyen=M.d+span*(.95+Math.random()*.3),x=.06+Math.random()*.88,rr=Math.random();
+    let tip;
+    if(r[1]==='Külső mag')tip=rr<.45?'asvany':rr<.75?'aram':'kemeny';
+    else if(M.d>=35&&M.d<2890)tip=rr<.45?'asvany':rr<.68?'kemeny':rr<.9?'magma':'gaz';
+    else tip=rr<.5?'asvany':rr<.8?'kemeny':'gaz';
+    const asv=r[5][Math.floor(Math.random()*r[5].length)];
+    M.obj.push({tip,x,d:melyen,s:tip==='kemeny'?.07+Math.random()*.06:tip==='aram'?.12:.035+Math.random()*.02,asv,ir:Math.random()<.5?-1:1,f:Math.random()*6.28})}
+}
+function sebesseg(){const r=reteg(M.d);let v=val('fur')*r[4];if(M.lassit>0)v*=.35;if(P(M.d)>=val('hej'))v=0;if(M.d>=R0)v=0;return v}
+function lep(dt){
+  M.t+=dt;
+  if(M.okVege){M.fin+=dt;if(M.fin>1.6)zar();return}
+  // kormányzás
+  let ir=0;if(bal.has('L'))ir-=1;if(bal.has('R'))ir+=1;if(ujj)ir=clamp((ujj.x/W-M.x)*6,-1,1);
+  M.vx=lerp(M.vx,ir*.55,Math.min(1,dt*6));M.x=clamp(M.x+M.vx*dt,.05,.95);
+  // haladás
+  const v=sebesseg(),d0=M.d;M.d=Math.min(R0,M.d+v*dt);M.max=Math.max(M.max,M.d);M.lassit=Math.max(0,M.lassit-dt);
+  M.E-=dt;
+  // hő: ha a külső hő nagyobb, mint amit a hűtés bír, a belső hő nő; különben lassan csökken
+  const kul=T(M.d),bir=val('hut');M.heat=clamp(M.heat+(kul>bir?(kul-bir)/bir*dt*.9:-dt*.08),0,1.2);
+  if(P(M.d)>=val('hej')&&!M.nyomUz){M.nyomUz=1;uzenet('⚠ A héj elérte a nyomáshatárt ('+hu(val('hej'),1)+' GPa). Mélyebbre csak erősebb héjjal mehetsz. Gyűjts, amíg bírod, aztán fel!',5)}
+  if(kul>bir&&!M.hoUz){M.hoUz=1;uzenet('🔥 A külső hő ('+hu(Math.round(kul))+' °C) több, mint amit a hűtés bír. A belső hő emelkedik!',4)}
+  // mérföldkövek
+  for(const[k,kulcs,cim,teny]of KOVEK)if(d0<k&&M.d>=k){M.kovek.push(cim);const uj=!S.kov[cim];S.kov[cim]=Date.now();if(kulcs)univ.set(kulcs);
+    if(uj){uzenet('<b>'+cim+'</b><br><span style="font-weight:400">'+teny+'</span>',9);csip(660,.4,'triangle',.2);if(k>=12)VS.hir(cim==='A Föld középpontja'?'elérte a Föld középpontját!':'elérte: '+cim+' ('+km(k)+').')}
+    if(k===R0){vege('kozep')}}
+  // tárgyak
+  spawn(dt);
+  const fogR=M.mag;
+  for(const o of M.obj){if(o.kesz)continue;
+    if(o.tip==='aram'){const dy=Math.abs(o.d-M.d)/Math.max(.001,v*5);if(dy<.12&&Math.abs(o.x-M.x)<.25)M.vx+=o.ir*dt*2.2}
+    const dyKm=o.d-M.d,dyN=dyKm/Math.max(.0001,sebesseg()*5||val('fur')*5);
+    if(Math.abs(dyN)<.04+o.s&&Math.abs(o.x-M.x)<o.s+(o.tip==='asvany'?fogR:.03)){
+      if(o.tip==='asvany'){o.kesz=1;const ertek=Math.round(o.asv[1]*4*(1+M.d/25));M.kr+=ertek;M.minta[o.asv[0]]=(M.minta[o.asv[0]]||0)+1;csip(1200+Math.random()*400,.12);reszek(M.x,'#ffe7a0',8)}
+      else if(o.tip==='kemeny'){o.kesz=1;M.lassit=1.1;M.E-=3;M.rezg=.4;csip(90,.25,'square',.2);reszek(M.x,'#bbb',14)}
+      else if(o.tip==='gaz'){o.kesz=1;M.E-=7;M.vx+=(M.x<o.x?-1:1)*.9;M.rezg=.7;csip(60,.5,'sawtooth',.3);reszek(M.x,'#ffd27a',22)}
+      else if(o.tip==='magma'){o.kesz=1;M.heat=Math.min(1.2,M.heat+.22);M.rezg=.5;csip(140,.35,'sawtooth',.2);reszek(M.x,'#ff6a1f',18)}}}
+  M.obj=M.obj.filter(o=>!o.kesz&&o.d>M.d-(sebesseg()||val('fur'))*3);
+  if(M.E<=0)vege('energia');else if(M.heat>=1)vege('ho');
+  // hang
+  if(zugG){zugG.gain.setTargetAtTime(v>0?.18:.05,AC.currentTime,.1);zug.o.frequency.setTargetAtTime(40+Math.min(60,v*4),AC.currentTime,.2)}
+  M.rezg=Math.max(0,M.rezg-dt);
+  for(const p of M.reszecske){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy-=60*dt;p.t-=dt}M.reszecske=M.reszecske.filter(p=>p.t>0);
+}
+function reszek(x,szin,n){for(let i=0;i<n;i++)M.reszecske.push({x:x*W,y:H*.32+20,vx:(Math.random()-.5)*220,vy:-Math.random()*160,t:.5+Math.random()*.5,szin})}
+function zar(){
+  const m=M,kozep=m.okVege==='kozep';
+  // ha a hő vitt fel, a minták negyede elvész
+  const veszt=m.okVege==='ho'?Math.round(m.kr*.25):0,kr=m.kr-veszt;
+  S.kr+=kr;S.total+=kr;const rekord=m.max>S.best;S.best=Math.max(S.best,m.max);save();
+  vsHeti();if(m.max>vsAllas.d){vsAllas.d=m.max;try{localStorage.setItem(VS_TAR,JSON.stringify(vsAllas))}catch(e){}VS.kozol()}
+  vsAllas.n=(vsAllas.n||0)+1;try{localStorage.setItem(VS_TAR,JSON.stringify(vsAllas))}catch(e){}
+  mod='bazis';['hud','bars','fel'].forEach(i=>$(i).hidden=true);
+  osszegzes={max:m.max,kr,veszt,ok:m.okVege,rekord,minta:m.minta,kovek:m.kovek,kozep};M=null;lapFul='fejl';render();$('lap').hidden=false;$('lap').scrollTop=0;
+}
+let osszegzes=null;
+
+// ---- rajz ----
+const csillag=Array.from({length:70},()=>[Math.random(),Math.random(),Math.random()]);
+function rajz(){
+  const t=performance.now()/1000;cx.clearRect(0,0,W,H);
+  if(!M){// a bázis mögött: lassan forgó keresztmetszet-háttér
+    const g=cx.createRadialGradient(W/2,H*1.15,10,W/2,H*1.15,H*1.2);g.addColorStop(0,'#fff1c9');g.addColorStop(.18,'#ff9a3c');g.addColorStop(.42,'#7a2a10');g.addColorStop(.7,'#2a1408');g.addColorStop(1,'#0b0907');
+    cx.fillStyle=g;cx.fillRect(0,0,W,H);return}
+  const v=sebesseg()||val('fur')*.0001,span=Math.max(.02,(sebesseg()||val('fur'))*5),r=reteg(M.d);
+  const sh=M.rezg>0?(Math.random()-.5)*M.rezg*14:0;
+  cx.save();cx.translate(sh,0);
+  // háttér: a réteg színe, a mélyebb rétegek felé átúszva; a hő vöröses izzást ad
+  const kov=RETEG[RETEG.indexOf(r)+1],fr=kov?clamp((M.d-r[0])/(kov[0]-r[0]),0,1):0;
+  const fy=H*.32;
+  const g=cx.createLinearGradient(0,0,0,H);g.addColorStop(0,r[2]);g.addColorStop(1,kov&&fr>.8?kov[2]:r[2]);cx.fillStyle=g;cx.fillRect(-20,0,W+40,H);
+  // rétegzés: vízszintes sávok, amelyek felfelé úsznak (a mélységgel együtt)
+  const sav=span/7;
+  for(let i=-2;i<12;i++){const dd=Math.floor(M.d/sav)*sav+i*sav,y=fy+(dd-M.d)/span*(H-fy)*1.25;
+    cx.fillStyle=((Math.floor(dd/sav))%2)?'rgba(0,0,0,.10)':'rgba(255,255,255,.035)';cx.fillRect(-20,y,W+40,sav/span*(H-fy)*1.25)}
+  // réteghatár
+  for(const R of RETEG){if(!R[0])continue;const y=fy+(R[0]-M.d)/span*(H-fy)*1.25;if(y<-20||y>H+20)continue;
+    cx.fillStyle=R[3];cx.globalAlpha=.85;cx.fillRect(-20,y-2,W+40,4);cx.globalAlpha=1;cx.font='700 12px '+getComputedStyle(document.body).fontFamily;cx.fillStyle='#fff';cx.fillText('▼ '+R[1]+' · '+km(R[0]),12,y-8)}
+  // szemcsék
+  cx.fillStyle=r[3];for(const[a,b,c]of csillag){const y=((b*H*2-(M.d/span)*(H-fy)*1.25*(.6+c))%H+H)%H;cx.globalAlpha=.25+c*.35;cx.fillRect(a*W,y,1+c*2.5,1+c*2.5)}cx.globalAlpha=1;
+  // a fúrás csatornája
+  const kx=M.x*W;cx.fillStyle='rgba(0,0,0,.35)';cx.fillRect(kx-14,0,28,fy);
+  // tárgyak
+  for(const o of M.obj){const y=fy+(o.d-M.d)/span*(H-fy)*1.25,x=o.x*W,s=o.s*W*.9;if(y<-60||y>H+60)continue;
+    if(o.tip==='asvany'){const p=1+.15*Math.sin(t*4+o.f);cx.save();cx.translate(x,y);cx.rotate(o.f+t*.6);cx.fillStyle=r[3];cx.shadowColor=r[3];cx.shadowBlur=14;cx.beginPath();
+      for(let k=0;k<6;k++){const a=k/6*Math.PI*2,rr=(k%2?.55:1)*s*p;cx.lineTo(Math.cos(a)*rr,Math.sin(a)*rr)}cx.closePath();cx.fill();cx.restore()}
+    else if(o.tip==='kemeny'){cx.fillStyle='rgba(20,18,16,.85)';cx.strokeStyle='rgba(255,255,255,.15)';cx.lineWidth=2;cx.beginPath();for(let k=0;k<9;k++){const a=k/9*Math.PI*2,rr=s*(.75+.25*Math.sin(k*2.7+o.f));cx.lineTo(x+Math.cos(a)*rr,y+Math.sin(a)*rr*.8)}cx.closePath();cx.fill();cx.stroke()}
+    else if(o.tip==='gaz'){cx.strokeStyle='rgba(255,230,140,.6)';cx.fillStyle='rgba(255,230,140,.12)';cx.lineWidth=1.5;for(let k=0;k<3;k++){cx.beginPath();cx.arc(x+Math.sin(t*2+k)*s*.3,y+k*s*.25,s*(.5+k*.18),0,7);cx.fill();cx.stroke()}}
+    else if(o.tip==='magma'){const gg=cx.createRadialGradient(x,y,1,x,y,s*1.4);gg.addColorStop(0,'#fff3b0');gg.addColorStop(.35,'#ff7a2a');gg.addColorStop(1,'rgba(255,60,10,0)');cx.fillStyle=gg;cx.beginPath();cx.arc(x,y,s*1.4,0,7);cx.fill()}
+    else if(o.tip==='aram'){cx.strokeStyle='rgba(255,220,150,.35)';cx.lineWidth=3;for(let k=0;k<4;k++){cx.beginPath();const yy=y+(k-1.5)*14;cx.moveTo(x-s*2,yy);for(let q=0;q<=10;q++)cx.lineTo(x-s*2+q*s*.4,yy+Math.sin(q*.9+t*5*o.ir+k)*5);cx.stroke()}
+      cx.fillStyle='rgba(255,220,150,.7)';cx.font='700 18px sans-serif';cx.fillText(o.ir>0?'→':'←',x-6,y+6)}}
+  // kapszula: test, rotáló fúrófej, szikrák
+  cx.save();cx.translate(kx,fy);cx.rotate(M.vx*.35);
+  const hoSzin=`rgba(255,${Math.round(200-M.heat*150)},${Math.round(120-M.heat*110)},${.25+M.heat*.5})`;
+  cx.fillStyle='#2b2f36';cx.strokeStyle='#8a93a0';cx.lineWidth=2;cx.beginPath();cx.roundRect(-13,-44,26,40,8);cx.fill();cx.stroke();
+  cx.fillStyle=hoSzin;cx.fillRect(-11,-40,22,32);
+  cx.fillStyle='#59c3ff';cx.beginPath();cx.arc(0,-30,5,0,7);cx.fill();
+  cx.fillStyle='#c9ced6';cx.beginPath();cx.moveTo(-13,-4);cx.lineTo(13,-4);cx.lineTo(0,22);cx.closePath();cx.fill();
+  cx.strokeStyle='#5a616b';cx.lineWidth=2;for(let k=0;k<4;k++){const ph=((t*(4+v*2))+k/4)%1;cx.beginPath();cx.moveTo(-13+ph*13,-4+ph*26*.0);cx.lineTo(-13*(1-ph)+0,-4+ph*26);cx.stroke()}
+  cx.restore();
+  if(sebesseg()>0&&Math.random()<.6)M.reszecske.push({x:kx+(Math.random()-.5)*16,y:fy+20,vx:(Math.random()-.5)*120,vy:-60-Math.random()*90,t:.4,szin:r[3]});
+  for(const p of M.reszecske){cx.globalAlpha=clamp(p.t*2,0,1);cx.fillStyle=p.szin;cx.fillRect(p.x,p.y,3,3)}cx.globalAlpha=1;
+  cx.restore();
+  // hőizzás a képernyő szélén
+  const kul=T(M.d),iz=clamp((kul-val('hut'))/val('hut'),0,1)*.5+M.heat*.35;
+  if(iz>0.02){const vg=cx.createRadialGradient(W/2,H/2,Math.min(W,H)*.3,W/2,H/2,Math.max(W,H)*.75);vg.addColorStop(0,'rgba(255,80,20,0)');vg.addColorStop(1,`rgba(255,80,20,${iz})`);cx.fillStyle=vg;cx.fillRect(0,0,W,H)}
+  // a középpont felé: fehér fény (a fehér lyuk)
+  const kozel=clamp((M.d-6100)/271,0,1);if(kozel>0){cx.fillStyle=`rgba(255,255,255,${kozel*.85+(M.okVege==='kozep'?M.fin*.6:0)})`;cx.fillRect(0,0,W,H)}
+  if(M.okVege&&M.okVege!=='kozep'){cx.fillStyle=`rgba(0,0,0,${Math.min(.85,M.fin*.6)})`;cx.fillRect(0,0,W,H);cx.fillStyle='#fff';cx.textAlign='center';cx.font='800 22px sans-serif';
+    cx.fillText({energia:'Lemerült az akkumulátor – csörlő fel',ho:'Túlhevülés – vészkilövés a felszínre',fel:'Felszínre!'}[M.okVege],W/2,H/2);cx.textAlign='left'}
+  // HUD
+  $('hD').textContent=km(M.d);$('hR').textContent=r[1];$('hT').textContent=hu(Math.round(kul))+' °C';$('hP').textContent=hu(P(M.d),P(M.d)<10?2:0)+' GPa';$('hG').textContent=hu(G(M.d),1);$('hK').textContent=hu(M.kr);
+  $('bE').style.width=clamp(M.E/M.E0*100,0,100)+'%';$('bEt').textContent=Math.max(0,Math.ceil(M.E))+' mp';
+  $('bH').style.width=clamp(M.heat*100,0,100)+'%';$('bHt').textContent=Math.round(M.heat*100)+'%';
+}
+
+// ---- bázis (a merülések között) ----
+function foldKep(){// keresztmetszet: rétegek, a te legmélyebb pontod és a heti legjobb
+  const s=320,c=document.createElement('canvas');c.width=s*2;c.height=s;const g=c.getContext('2d');const R=s*.95,ox=s,oy=s;
+  const szin=['#6b5240','#4a4440','#4a5a34','#336a62','#6a3a50','#7a3420','#c4661c','#e8e1d0'];
+  RETEG.forEach((x,i)=>{g.fillStyle=szin[i];g.beginPath();g.arc(ox,oy,R*(1-x[0]/R0),Math.PI,0);g.fill()});
+  g.strokeStyle='#ffd27a';g.lineWidth=4;g.beginPath();g.moveTo(ox,oy-R);g.lineTo(ox,oy-R+R*S.best/R0);g.stroke();
+  g.fillStyle='#fff';g.beginPath();g.arc(ox,oy-R+R*S.best/R0,7,0,7);g.fill();
+  if(univ.has('me:kozep')){const gg=g.createRadialGradient(ox,oy,1,ox,oy,40);gg.addColorStop(0,'#fff');gg.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gg;g.beginPath();g.arc(ox,oy,40,0,7);g.fill()}
+  g.font='bold 22px sans-serif';g.fillStyle='#fff';g.textAlign='center';g.fillText('legmélyebb: '+km(S.best),ox,oy-R*.42);
+  return c.toDataURL()}
+function render(){
+  if(mod!=='bazis')return;
+  const aj=ajandekok();
+  let h='<div><h1>Mélység</h1><p class="dim">Fúrókapszulával a Föld középpontja felé. 6371 km kőzet, olvadt vas és nyomás – és ami a közepén vár.</p></div>';
+  if(osszegzes){const o=osszegzes;
+    if(o.kozep)h+='<section class="card" style="border-color:#fff;background:linear-gradient(180deg,#fff3,#17120e)"><h2>Fehér lyuk</h2><p>A Föld középpontjában nincs lent és fent. És van ott valami, aminek nem lehetne: fény, ami nem elnyelődik, hanem kiárad. Mintha egy fekete lyuk másik vége volna.</p><p class="dim">A kapszulát a fény visszalökte a felszínre. A minták megmaradtak.</p><a class="kapu" href="../Esemenyhorizont/?from=melyseg">Kövesd a fényt: Eseményhorizont ↗</a></section>';
+    h+='<section class="card"><div class="row"><h2>A merülés eredménye</h2>'+(o.rekord?'<span class="chip">ÚJ REKORD</span>':'')+'</div><div class="osszeg">Mélység: <b>'+km(o.max)+'</b><br>Minták: <b>+'+hu(o.kr)+' kr</b>'+(o.veszt?' <span style="color:var(--bad)">(−'+hu(o.veszt)+' kr a vészkilövésnél)</span>':'')+'</div>'
+      +(Object.keys(o.minta).length?'<p class="dim kicsi">'+Object.entries(o.minta).map(([k,n])=>n+'× '+k).join(' · ')+'</p>':'')+(o.kovek.length?'<p class="kicsi">Elértél: '+o.kovek.join(', ')+'.</p>':'')+'</section>';}
+  if(aj)h+='<section class="card" style="border-color:#9b7bff">'+aj+'</section>';
+  h+='<button class="go" id="go">⬇ MERÜLÉS</button>';
+  h+='<div class="tabs">'+[['fejl','Fejlesztés'],['naplo','Napló'],['verseny','Verseny'],['vilag','Más világok']].map(([k,n])=>'<button data-f="'+k+'" aria-pressed="'+(lapFul===k)+'">'+n+'</button>').join('')+'</div>';
+  if(lapFul==='fejl'){
+    h+='<section class="card"><div class="row"><h2>Kutatási keret</h2><span class="chip">'+hu(S.kr)+' kr</span></div><img id="fold" src="'+foldKep()+'" alt="A Föld keresztmetszete a legmélyebb pontoddal">';
+    h+=UPG.map(u=>{const l=S.up[u[0]],c=cost(u,l);return '<div class="up"><h3>'+u[1]+' · '+(l+1)+'. szint</h3><button data-u="'+u[0]+'" '+(S.kr<c?'disabled':'')+'>'+hu(c)+' kr</button><span class="dim kicsi">'+u[2]+': '+u[4](u[3](l))+' → <b style="color:var(--ink)">'+u[4](u[3](l+1))+'</b></span></div>'}).join('');
+    const kov=KOVEK.find(k=>k[0]>S.best);
+    h+='<p class="dim kicsi">'+(kov?'Következő mérföldkő: <b style="color:var(--ink)">'+kov[2]+'</b> ('+km(kov[0])+', '+hu(Math.round(T(kov[0])))+' °C, '+hu(P(kov[0]),1)+' GPa).':'Elérted a Föld középpontját. Mélyebbre nincs hová – csak tovább.')+'</p></section>';}
+  else if(lapFul==='naplo'){
+    h+='<section class="card"><h2>Napló</h2><div class="log">'+KOVEK.filter(k=>S.kov[k[2]]).map(k=>'<div><b>'+k[2]+'</b> · '+km(k[0])+'<br><span class="dim kicsi">'+k[3]+'</span></div>').join('')+'</div>'+(Object.keys(S.kov).length?'':'<p class="dim">Még üres. Minden új mélységről ide kerül, mit tud róla a tudomány.</p>')+'<p class="dim kicsi">'+S.dives+' merülés · összesen '+hu(S.total)+' kr minta. A hőmérséklet, a nyomás és a nehézségi gyorsulás a PREM földmodell közelítése.</p></section>';}
+  else if(lapFul==='verseny'){const R=VS.rangsor(),hely=R.findIndex(x=>x.en)+1;
+    h+='<section class="card" style="border-color:var(--gold)"><div class="row"><h2>Heti mélységverseny</h2><span class="chip">'+(VS.be?(VS.fent()+1)+' fent':'nincs kapcsolat')+'</span></div><p class="dim kicsi">Ki jut a héten egyetlen merüléssel a legmélyebbre? Hétfőn új verseny indul; a múlt heti győztes +600 kr-t kap.'+(VS.uz?' '+VS.uz:'')+'</p>';
+    if(!VS.nev())h+='<div class="row" style="margin:8px 0"><input id="vsNev" maxlength="24" placeholder="A fúrócsapatod neve" style="flex:1"><button class="up" style="border:1px solid var(--lava);border-radius:10px;background:none;color:var(--ink);padding:9px 12px;font-weight:800" id="vsOk">Beszállok</button></div>';
+    h+=R.length?'<table class="vtab"><tr><th>#</th><th>Csapat</th><th class="sz">Mélység</th></tr>'+R.slice(0,10).map((x,i)=>'<tr class="'+(x.en?'en':'')+'"><td>'+(i+1)+'</td><td>'+esc(x.nev)+(x.en?' (te)':'')+(VS.jelen[x.id]&&!x.en?'<span class="fent">fent</span>':'')+'</td><td class="sz">'+km(+x.v.d||0)+'</td></tr>').join('')+'</table>':'<p class="dim">Ezen a héten még senki sem merült. Az első merülésed után itt leszel.</p>';
+    if(hely&&R.length>1)h+='<p class="kicsi">Most a <b>'+hely+'.</b> vagy '+R.length+' csapat közül.</p>';
+    if(VS.hirek.length)h+='<div class="log kicsi">'+VS.hirek.slice(0,4).map(x=>'<div>'+esc(x.nev)+' '+esc(x.t)+'</div>').join('')+'</div>';
+    h+='<p class="dim kicsi">A csapatnév és a heti mélység egy nyilvános üzenetközvetítőn (HiveMQ) megy át a többi játékoshoz; más adat nem.</p></section>';}
+  else{const n=univ.get(),jart=VILAGOK.filter(v=>n[v[0]]);
+    h+='<section class="card" style="border-color:#9b7bff"><h2>Más világok</h2>'+(n['me:kozep']?'<p class="kicsi">A Föld közepén fény árad kifelé, mintha egy fekete lyuk másik vége volna.</p>':'<p class="dim kicsi">Akik a Föld középpontjáig jutnak, azok furcsa fényt látnak. Talán egy másik világ kapuja.</p>')
+      +jart.map(v=>'<p class="kicsi"><b>'+v[1]+'.</b> <span class="dim">'+v[3]+'</span></p>').join('')
+      +VILAGOK.filter(v=>n[v[0]]||(v[0]==='eh:jart'&&n['me:kozep'])).map(v=>'<a class="kapu" href="'+v[2]+'">'+v[1]+' ↗</a>').join('')+'</section>';}
+  $('wrap').innerHTML=h;
+  $('go').onclick=indul;
+  document.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{lapFul=b.dataset.f;osszegzes=null;render()});
+  document.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{const u=UPG.find(x=>x[0]===b.dataset.u),c=cost(u,S.up[u[0]]);if(S.kr<c)return;S.kr-=c;S.up[u[0]]++;save();hangInit();csip(990,.15);render()});
+  const ok=$('vsOk');if(ok)ok.onclick=()=>{const v=$('vsNev').value.trim();if(v){VS.nevBe(v);render()}};
+}
+
+// ---- ciklus ----
+let last=performance.now();
+function ciklus(now){const dt=Math.min(.05,(now-last)/1000);last=now;if(M)lep(dt);rajz();
+  if(uzT>0){uzT-=dt;if(uzT<=0)$('uz').style.opacity=0}requestAnimationFrame(ciklus)}
+render();requestAnimationFrame(ciklus);
+document.addEventListener('visibilitychange',()=>{if(document.hidden){save();if(AC)AC.suspend()}else if(AC&&M)AC.resume()});
+})();
+</script>
+</body>
+</html>
