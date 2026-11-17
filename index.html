@@ -128,6 +128,8 @@ const VILAGOK=[
   ['ku:jart','Kurta szimulátor','../Kurta-SIM-/','Odafent valaki kólát iszik és böfög. 340 dB fölött a szeizmográfok minden kontinensen rengést mérnek.']];
 function ajandekok(){const n=univ.get(),A=[['eh:horizont',400,'Egy eseményhorizont mögül hő szivárog vissza: +400 kr a kutatásra.'],['eg:sziv',300,'Egy torony Szíve megrepedt, a földrengés új repedéseket nyitott: +300 kr.'],
   ['mo:csillag',200,'Csillagméhek szálltak el a fúrótorony fölött: a méhészek támogatják az expedíciót, +200 kr.'],['lo:moon',300,'Valaki a Holdra jutott; a Föld közepe még mindig érintetlen. Az Akadémia +300 kr-t ad.'],
+  ['ku:lokeshullam',100,'Egy 200 dB fölötti böfi lökéshulláma végigfutott a kérgen. A szeizmikus mérésekért +100 kr jár.'],
+  ['ku:fold',350,'Valaki szétböfögte a Földet. A darabokat valahogy összerakták, de a köpenyben maradt egy repedés: a fúró könnyebben megy, és a biztosító is fizetett. +350 kr.'],
   ['r3:feketelyuk',150,'Egy raktár pohármosójában apró fekete lyuk nyílt. A szeizmográfok jelezték: +150 kr.'],['eh:egg:melyseg',300,'Egy fekete lyuk mögötti buborékban rátaláltak a fúrótornyodra: +300 kr.']];
   let uz='';for(const[k,kr,sz]of A)if(n[k]&&univ.set('me:ajandek:'+k)){S.kr+=kr;uz+='<p class="kicsi">'+sz+'</p>'}if(uz)save();return uz}
 
@@ -373,7 +375,7 @@ function render(){
     h+='<p class="dim kicsi">A csapatnév és a heti mélység egy nyilvános üzenetközvetítőn (HiveMQ) megy át a többi játékoshoz; más adat nem.</p></section>';}
   else{const n=univ.get(),jart=VILAGOK.filter(v=>n[v[0]]);
     h+='<section class="card" style="border-color:#9b7bff"><h2>Más világok</h2>'+(n['me:kozep']?'<p class="kicsi">A Föld közepén fény árad kifelé, mintha egy fekete lyuk másik vége volna.</p>':'<p class="dim kicsi">Akik a Föld középpontjáig jutnak, azok furcsa fényt látnak. Talán egy másik világ kapuja.</p>')
-      +jart.map(v=>'<p class="kicsi"><b>'+v[1]+'.</b> <span class="dim">'+v[3]+'</span></p>').join('')
+      +(n['ku:fold']?'<p class="kicsi">A kéregben egy friss, gyűrű alakú repedés fut körbe. A geológusok szerint egy 440 dB-es böfi okozta. A fúrócsapat azóta spréjtet visz magával.</p>':'')+jart.map(v=>'<p class="kicsi"><b>'+v[1]+'.</b> <span class="dim">'+v[3]+'</span></p>').join('')
       +VILAGOK.filter(v=>n[v[0]]||(v[0]==='eh:jart'&&n['me:kozep'])).map(v=>'<a class="kapu" href="'+v[2]+'">'+v[1]+' ↗</a>').join('')+'</section>';}
   $('wrap').innerHTML=h;
   $('go').onclick=indul;
